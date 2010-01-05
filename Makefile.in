@@ -34,14 +34,15 @@ host_triplet = @host@
 target_triplet = @target@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure \
-	$(top_srcdir)/init.d/resin.in \
+	$(srcdir)/Makefile.in \
+	$(top_srcdir)/${resin_pro}/modules/c/src/Makefile.in \
+	$(top_srcdir)/${resin_pro}/modules/c/src/resin/Makefile.in \
+	$(top_srcdir)/${resin_pro}/modules/c/src/resinssl/Makefile.in \
+	$(top_srcdir)/configure $(top_srcdir)/init.d/resin.in \
 	$(top_srcdir)/modules/c/src/Makefile.in \
 	$(top_srcdir)/modules/c/src/apache2/Makefile.in \
 	$(top_srcdir)/modules/c/src/common/Makefile.in \
-	$(top_srcdir)/modules/c/src/resin/Makefile.in \
-	$(top_srcdir)/modules/c/src/resin_os/Makefile.in \
-	$(top_srcdir)/modules/c/src/resinssl/Makefile.in COPYING \
+	$(top_srcdir)/modules/c/src/resin_os/Makefile.in COPYING \
 	INSTALL automake/config.guess automake/config.sub \
 	automake/install-sh automake/ltmain.sh automake/missing \
 	ltconfig ltmain.sh mkinstalldirs
@@ -55,7 +56,9 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = modules/c/src/Makefile \
 	modules/c/src/common/Makefile modules/c/src/apache2/Makefile \
 	modules/c/src/resin_os/Makefile init.d/resin \
-	modules/c/src/resin/Makefile modules/c/src/resinssl/Makefile
+	${resin_pro}/modules/c/src/Makefile \
+	${resin_pro}/modules/c/src/resin/Makefile \
+	${resin_pro}/modules/c/src/resinssl/Makefile
 depcomp =
 am__depfiles_maybe =
 SOURCES =
@@ -206,6 +209,9 @@ resin_conf = @resin_conf@
 resin_home = @resin_home@
 resin_init_d = @resin_init_d@
 resin_log = @resin_log@
+resin_os = @resin_os@
+resin_pro = @resin_pro@
+resin_pro_plugins = @resin_pro_plugins@
 resin_root = @resin_root@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
@@ -264,9 +270,11 @@ modules/c/src/resin_os/Makefile: $(top_builddir)/config.status $(top_srcdir)/mod
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 init.d/resin: $(top_builddir)/config.status $(top_srcdir)/init.d/resin.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-modules/c/src/resin/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resin/Makefile.in
+${resin_pro}/modules/c/src/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-modules/c/src/resinssl/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resinssl/Makefile.in
+${resin_pro}/modules/c/src/resin/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/resin/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+${resin_pro}/modules/c/src/resinssl/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/resinssl/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
@@ -519,9 +527,15 @@ uninstall-am:
 
 all	: 
 	(cd modules/c/src; $(MAKE))
+	if test -r $(resin_pro)/modules/c/src/Makefile; then \
+	  cd $(resin_pro)/modules/c/src; $(MAKE); \
+	fi
 
 clean	:
 	(cd modules/c/src; $(MAKE) clean)
+	if test -r $(resin_pro)/modules/c/src/Makefile; then \
+	  cd $(resin_pro)/modules/c/src; $(MAKE) clean; \
+	fi
 	- rm -r $(LIBEXEC)
 
 install	:
@@ -549,6 +563,9 @@ install	:
 	  chmod +x $(resin_init_d); \
 	fi; \
 	(cd modules/c/src; $(MAKE) install)
+	if test -r $(resin_pro)/modules/c/src/Makefile; then \
+	  cd $(resin_pro)/modules/c/src; $(MAKE) install; \
+	fi
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
