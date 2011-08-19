@@ -40,7 +40,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(top_srcdir)/${resin_pro}/modules/c/src/Makefile.in \
 	$(top_srcdir)/${resin_pro}/modules/c/src/resin/Makefile.in \
 	$(top_srcdir)/${resin_pro}/modules/c/src/resinssl/Makefile.in \
-	$(top_srcdir)/configure $(top_srcdir)/init.d/resin.in \
+	$(top_srcdir)/bin/resinctl.in $(top_srcdir)/configure \
+	$(top_srcdir)/init.d/resin.in \
 	$(top_srcdir)/modules/c/src/Makefile.in \
 	$(top_srcdir)/modules/c/src/apache2/Makefile.in \
 	$(top_srcdir)/modules/c/src/common/Makefile.in \
@@ -57,7 +58,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = modules/c/src/Makefile \
 	modules/c/src/common/Makefile modules/c/src/apache2/Makefile \
-	modules/c/src/resin_os/Makefile init.d/resin \
+	modules/c/src/resin_os/Makefile init.d/resin bin/resinctl \
 	${resin_pro}/modules/c/src/Makefile \
 	${resin_pro}/modules/c/src/resin/Makefile \
 	${resin_pro}/modules/c/src/resinssl/Makefile
@@ -278,6 +279,8 @@ modules/c/src/apache2/Makefile: $(top_builddir)/config.status $(top_srcdir)/modu
 modules/c/src/resin_os/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resin_os/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 init.d/resin: $(top_builddir)/config.status $(top_srcdir)/init.d/resin.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+bin/resinctl: $(top_builddir)/config.status $(top_srcdir)/bin/resinctl.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 ${resin_pro}/modules/c/src/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
