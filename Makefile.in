@@ -36,16 +36,14 @@ host_triplet = @host@
 target_triplet = @target@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in \
-	$(top_srcdir)/${resin_pro}/modules/c/src/Makefile.in \
-	$(top_srcdir)/${resin_pro}/modules/c/src/resin/Makefile.in \
-	$(top_srcdir)/${resin_pro}/modules/c/src/resinssl/Makefile.in \
-	$(top_srcdir)/bin/resinctl.in $(top_srcdir)/configure \
-	$(top_srcdir)/init.d/resin.in \
+	$(srcdir)/Makefile.in $(top_srcdir)/bin/resinctl.in \
+	$(top_srcdir)/configure $(top_srcdir)/init.d/resin.in \
 	$(top_srcdir)/modules/c/src/Makefile.in \
 	$(top_srcdir)/modules/c/src/apache2/Makefile.in \
 	$(top_srcdir)/modules/c/src/common/Makefile.in \
-	$(top_srcdir)/modules/c/src/resin_os/Makefile.in COPYING \
+	$(top_srcdir)/modules/c/src/resin/Makefile.in \
+	$(top_srcdir)/modules/c/src/resin_os/Makefile.in \
+	$(top_srcdir)/modules/c/src/resinssl/Makefile.in COPYING \
 	INSTALL automake/config.guess automake/config.sub \
 	automake/install-sh automake/ltmain.sh automake/missing \
 	ltconfig ltmain.sh mkinstalldirs
@@ -59,9 +57,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = modules/c/src/Makefile \
 	modules/c/src/common/Makefile modules/c/src/apache2/Makefile \
 	modules/c/src/resin_os/Makefile init.d/resin bin/resinctl \
-	${resin_pro}/modules/c/src/Makefile \
-	${resin_pro}/modules/c/src/resin/Makefile \
-	${resin_pro}/modules/c/src/resinssl/Makefile
+	modules/c/src/resin/Makefile modules/c/src/resinssl/Makefile
 CONFIG_CLEAN_VPATH_FILES =
 depcomp =
 am__depfiles_maybe =
@@ -183,6 +179,7 @@ bindir = @bindir@
 build = @build@
 build_alias = @build_alias@
 build_cpu = @build_cpu@
+build_dir = @build_dir@
 build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
@@ -221,6 +218,7 @@ resin_os = @resin_os@
 resin_pro = @resin_pro@
 resin_pro_plugins = @resin_pro_plugins@
 resin_root = $(DESTDIR)@resin_root@
+resin_version = @resin_version@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -233,6 +231,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+usr_share = $(DESTDIR)@usr_share@
 ACLOCAL_AMFLAGS = -I m4
 all: all-am
 
@@ -283,11 +282,9 @@ init.d/resin: $(top_builddir)/config.status $(top_srcdir)/init.d/resin.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 bin/resinctl: $(top_builddir)/config.status $(top_srcdir)/bin/resinctl.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-${resin_pro}/modules/c/src/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/Makefile.in
+modules/c/src/resin/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resin/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-${resin_pro}/modules/c/src/resin/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/resin/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-${resin_pro}/modules/c/src/resinssl/Makefile: $(top_builddir)/config.status $(top_srcdir)/${resin_pro}/modules/c/src/resinssl/Makefile.in
+modules/c/src/resinssl/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resinssl/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
@@ -573,15 +570,15 @@ all	:
 	  cd $(resin_pro)/modules/c/src; $(MAKE); \
 	fi
 
-clean	:
-	(cd modules/c/src; $(MAKE) clean)
-	if test -r $(resin_pro)/modules/c/src/Makefile; then \
-	  cd $(resin_pro)/modules/c/src; $(MAKE) clean; \
-	fi
-	- rm -r $(LIBEXEC)
+rpm-dist:
+	@ cp conf/resin.properties conf/resin.properties.orig
+	@ awk '/setuid_user/ { print "setuid_user : resin"; next; } \
+	       /setuid_group/ { print "setuid_group : resin"; next; } \
+               { print $0; }' \
+	conf/resin.properties.orig > conf/resin.properties
 
 install	:
-	@ if test "$(resin_root)" != $(abs_builddir); then \
+	@ if test "$(resin_root)" != "$(build_dir)"; then \
 		if test -e "$(resin_root)"; then \
 			echo "-------------------------------------------------------";\
 			echo "Will not overwrite Resin root directory ($(resin_root))";\
@@ -601,16 +598,22 @@ install	:
 		cp -r $(CP_U_FLAG) endorsed $(resin_home); \
 	fi
 	@ echo "Installing Resin home directory $(resin_root)"
-	@ if test "$(resin_home)" != $(abs_builddir); then \
+	@ if test "$(resin_home)" != "$(build_dir)"; then \
 	  mkdir -p $(resin_home)/bin; \
-	  mkdir -p $(resin_home)/keys; \
-	  mkdir -p $(resin_home)/licenses; \
+	  mkdir -p $(resin_root)/keys; \
+	  mkdir -p $(resin_root)/licenses; \
 	  mkdir -p $(resin_home)/lib; \
 	  mkdir -p $(resin_home)/$(LIBEXEC); \
 	  cp bin/* $(resin_home)/bin; \
 	  cp lib/*.jar $(resin_home)/lib; \
+	  if test -w "$(usr_share)"; then \
+	    ln -sf $(resin_version) $(usr_share)/resin; \
+	    mkdir -p $(DESTDIR)/usr/bin; \
+	    ln -sf @usr_share@/resin/bin/resinctl $(DESTDIR)/usr/bin/resinctl; \
+	  fi \
 	fi
-	@ if test "$(resin_conf)" != $(abs_builddir)/conf; then \
+	@ chmod +x $(resin_home)/bin/resinctl
+	@ if test "$(resin_conf)" != $(build_dir)/conf; then \
 	  mkdir -p $(resin_conf); \
 		if test -f "$(resin_conf)/resin.xml"; then\
 			echo "-------------------------------------------------------";\
@@ -619,6 +622,13 @@ install	:
 		else\
 			cp conf/resin.xml $(resin_conf)/resin.xml; \
 		fi;\
+		if test -f "$(resin_conf)/resin.properties"; then\
+			echo "-------------------------------------------------------";\
+			echo "Will not overwrite $(resin_conf)/resin.properties";\
+			echo "-------------------------------------------------------";\
+		else\
+			cp conf/resin.properties $(resin_conf)/resin.properties; \
+		fi;\
 		if test -f "$(resin_conf)/app-default.xml"; then\
 			echo "-------------------------------------------------------";\
 			echo "Will not overwrite $(resin_conf)/app-default.xml";\
@@ -626,29 +636,31 @@ install	:
 		else\
 			cp conf/app-default.xml $(resin_conf)/app-default.xml; \
 		fi;\
-		if test -f "$(resin_conf)/health.xml"; then\
-			echo "-------------------------------------------------------";\
-			echo "Will not overwrite $(resin_conf)/health.xml";\
-			echo "-------------------------------------------------------";\
-		else\
-			cp conf/health.xml $(resin_conf)/health.xml; \
-		fi;\
+		mkdir "$(resin_conf)/local.d"; \
+		install -b -t "$(resin_conf)/local.d" conf/local.d/*; \
 	fi
 	(cd modules/c/src; $(MAKE) install)
 	if test -r $(resin_pro)/modules/c/src/Makefile; then \
 		(cd $(resin_pro)/modules/c/src; $(MAKE) install) \
 	fi
-	@ if test -n "$(resin_init_d)" -a "$(resin_home)" != $(abs_builddir); then \
+	@ if test -n "$(resin_init_d)" -a "$(resin_home)" != "$(build_dir)"; then \
 		if test -f "$(resin_init_d)"; then\
 			echo "-------------------------------------------------------";\
 			echo "Will not overwrite $(resin_init_d)";\
 			echo "-------------------------------------------------------";\
 		elif test "$(resin_init_d)" != "$(DESTDIR)"; then\
 			mkdir -p `dirname $(resin_init_d)`;\
-			cp $(abs_builddir)/init.d/resin $(resin_init_d); \
+			cp $(build_dir)/init.d/resin $(resin_init_d); \
 			chmod +x $(resin_init_d) && echo "$(resin_init_d) installed."; \
 		fi; \
 	fi
+
+clean	:
+	(cd modules/c/src; $(MAKE) clean)
+	if test -r $(resin_pro)/modules/c/src/Makefile; then \
+	  cd $(resin_pro)/modules/c/src; $(MAKE) clean; \
+	fi
+	- rm -r $(LIBEXEC)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
