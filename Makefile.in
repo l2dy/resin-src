@@ -56,8 +56,9 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES = modules/c/src/Makefile \
 	modules/c/src/common/Makefile modules/c/src/apache2/Makefile \
-	modules/c/src/resin_os/Makefile init.d/resin bin/resinctl \
-	modules/c/src/resin/Makefile modules/c/src/resinssl/Makefile
+	modules/c/src/resin_os/Makefile \
+	modules/c/src/resinssl/Makefile init.d/resin bin/resinctl \
+	modules/c/src/resin/Makefile
 CONFIG_CLEAN_VPATH_FILES =
 depcomp =
 am__depfiles_maybe =
@@ -278,13 +279,13 @@ modules/c/src/apache2/Makefile: $(top_builddir)/config.status $(top_srcdir)/modu
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 modules/c/src/resin_os/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resin_os/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
+modules/c/src/resinssl/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resinssl/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 init.d/resin: $(top_builddir)/config.status $(top_srcdir)/init.d/resin.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 bin/resinctl: $(top_builddir)/config.status $(top_srcdir)/bin/resinctl.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 modules/c/src/resin/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resin/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-modules/c/src/resinssl/Makefile: $(top_builddir)/config.status $(top_srcdir)/modules/c/src/resinssl/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
