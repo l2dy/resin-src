@@ -99,7 +99,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CFLAGS_JNI = @CFLAGS_JNI@
 CFLAGS_OPENSSL = @CFLAGS_OPENSSL@
-CFLAGS_SHLIB = @CFLAGS_SHLIB@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CPU = @CPU@
@@ -131,12 +130,9 @@ JNI = @JNI@
 JNI_INCLUDE = @JNI_INCLUDE@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
-LDFLAGS_SHLIB = @LDFLAGS_SHLIB@
-LD_SHLIB = @LD_SHLIB@
 LIBEXEC = @LIBEXEC@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBS_SHLIB = @LIBS_SHLIB@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_SCRIPT = @LIBTOOL_SCRIPT@
 LIPO = @LIPO@
@@ -188,9 +184,13 @@ am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 apache_cflags = @apache_cflags@
+apache_cflags_shlib = @apache_cflags_shlib@
 apache_conf = @apache_conf@
 apache_dir = @apache_dir@
+apache_ld_shlib = @apache_ld_shlib@
+apache_ldflags_shlib = @apache_ldflags_shlib@
 apache_libexec = @apache_libexec@
+apache_libs_shlib = @apache_libs_shlib@
 bindir = @bindir@
 build = @build@
 build_alias = @build_alias@
@@ -214,6 +214,11 @@ includedir = @includedir@
 infodir = @infodir@
 initd_dir = $(DESTDIR)@initd_dir@
 install_sh = @install_sh@
+jni_cflags = @jni_cflags@
+jni_cflags_shlib = @jni_cflags_shlib@
+jni_ld_shlib = @jni_ld_shlib@
+jni_ldflags_shlib = @jni_ldflags_shlib@
+jni_libs_shlib = @jni_libs_shlib@
 libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
@@ -624,8 +629,8 @@ all	:
 
 rpm-dist	:
 	cp conf/resin.properties conf/resin.properties.orig
-	awk '/setuid_user/ { print "setuid_user : resin"; next; } \
-	       /setuid_group/ { print "setuid_group : resin"; next; } \
+	awk '/setuid_user/ { print "setuid_user : @setuid_user@"; next; } \
+	       /setuid_group/ { print "setuid_group : @setuid_group@"; next; } \
 	             { print $0; }' \
 	conf/resin.properties.orig > conf/resin.properties
 
