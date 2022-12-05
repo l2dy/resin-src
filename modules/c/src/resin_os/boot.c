@@ -31,6 +31,8 @@
 /* probably system-dependent */
 #include <jni.h>
 
+#include "resin_os.h"
+
 static char *
 get_utf8(JNIEnv *env, jstring jaddr, char *buf, int buflen)
 {
